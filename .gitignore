@@ -137,6 +137,8 @@ celerybeat.pid
 # Environments
 .env
 .env.local
+.env.development
+.env.production
 .env.*.local
 .envrc
 .venv
@@ -225,3 +227,11 @@ logs/
 secrets/
 *.key
 *.pem
+
+# Dependency cache
+node_modules/
+
+# framework-specific
+.next
+.nuxt
+.expo
