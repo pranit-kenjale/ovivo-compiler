@@ -165,7 +165,7 @@ function StatusLog({ lines }) {
       fontSize: 11.5, lineHeight: 1.7, overflowY: 'auto', maxHeight: 280,
     }}>
       {lines.length === 0
-        ? <span style={{ color: '#1e3a50' }}>— awaiting input —</span>
+        ? <span style={{ color: '#3a6a8a' }}>— awaiting input —</span>
         : lines.map((l, i) => (
           <div key={i} style={{
             color: l.type === 'error'   ? '#f04040'
@@ -203,7 +203,7 @@ function Divider({ label }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '10px 0 6px' }}>
       <div style={{ flex: 1, height: 1, background: '#0d2030' }} />
-      <span style={{ fontSize: 10, color: '#1e3a50', fontFamily: 'Share Tech Mono',
+      <span style={{ fontSize: 10, color: '#6aaccc', fontFamily: 'Share Tech Mono',
         letterSpacing: '0.12em', whiteSpace: 'nowrap' }}>{label}</span>
       <div style={{ flex: 1, height: 1, background: '#0d2030' }} />
     </div>
@@ -379,7 +379,7 @@ export default function App() {
             fontFamily: "'Rajdhani', sans-serif", letterSpacing: '0.05em', color: '#c8dff0' }}>
             Ignition Perspective Screen Compiler Tool
           </h1>
-          <div style={{ fontSize: 11, color: '#2a5070', marginTop: 2,
+          <div style={{ fontSize: 11, color: '#5a8aaa', marginTop: 2,
             fontFamily: 'Share Tech Mono', letterSpacing: '0.08em' }}>
             OVIVO UPW SYSTEM · SCREEN GENERATOR v1.0
           </div>
@@ -388,7 +388,7 @@ export default function App() {
           <span style={{ width: 8, height: 8, borderRadius: '50%',
             background: sessionId ? '#40c870' : '#1e3a50',
             boxShadow: sessionId ? '0 0 6px #40c870' : 'none', display: 'inline-block' }} />
-          <span style={{ fontSize: 11, color: '#2a5070', fontFamily: 'Share Tech Mono' }}>
+          <span style={{ fontSize: 11, color: '#5a8aaa', fontFamily: 'Share Tech Mono' }}>
             {sessionId ? 'SESSION ACTIVE' : 'NO SESSION'}
           </span>
         </div>
@@ -407,7 +407,7 @@ export default function App() {
             <Checkbox checked={genPageConfig} onChange={() => setGenPageConfig(v => !v)}
               label="Page Configuration" />
             <Checkbox checked={genNavScreen}  onChange={() => setGenNavScreen(v => !v)}
-              label="Navigation Screen" />
+              label="Views" />
           </div>
 
           {/* Select all */}
@@ -417,7 +417,7 @@ export default function App() {
               <Checkbox checked={allChecked} indeterminate={someChecked && !allChecked}
                 onChange={toggleAll} label="Select All" />
               <span style={{ marginLeft: 'auto', fontSize: 11,
-                color: '#2a5070', fontFamily: 'Share Tech Mono' }}>
+                color: '#5a8aaa', fontFamily: 'Share Tech Mono' }}>
                 {selected.size}/{allScreens.length}
               </span>
             </div>
@@ -426,7 +426,7 @@ export default function App() {
           {/* Tree */}
           <div style={{ flex: 1, overflowY: 'auto', padding: '8px 8px' }}>
             {tree.length === 0
-              ? <div style={{ padding: '24px 16px', color: '#1e3a50', fontSize: 12,
+              ? <div style={{ padding: '24px 16px', color: '#5a90b0', fontSize: 12,
                   fontFamily: 'Share Tech Mono', textAlign: 'center' }}>
                   Load screens to populate tree
                 </div>
@@ -467,7 +467,7 @@ export default function App() {
 
           {/* Log */}
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 11, color: '#1e3a50', fontFamily: 'Share Tech Mono',
+            <div style={{ fontSize: 11, color: '#6aaccc', fontFamily: 'Share Tech Mono',
               marginBottom: 4, letterSpacing: '0.1em' }}>COMPILER OUTPUT</div>
             <StatusLog lines={log} />
             {selected.size > 0 && (
