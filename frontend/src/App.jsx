@@ -51,7 +51,7 @@ function Checkbox({ checked, indeterminate, onChange, label }) {
           <span style={{ width: 8, height: 2, background: '#00e5ff', borderRadius: 1 }} />
         )}
       </span>
-      {label && <span style={{ fontSize: 13, color: '#b0c4d8' }}>{label}</span>}
+      {label && <span style={{ fontSize: 17, color: '#b0c4d8' }}>{label}</span>}
     </label>
   )
 }
@@ -74,12 +74,12 @@ function TreeGroup({ group, screens, selected, onToggleGroup, onToggleScreen }) 
         <Checkbox checked={allChecked} indeterminate={someChecked && !allChecked}
           onChange={() => onToggleGroup(screens, allChecked)} />
         <span onClick={() => setOpen(o => !o)} style={{
-          fontSize: 13, fontWeight: 600, color: '#8ab4cc',
+          fontSize: 17, fontWeight: 600, color: '#8ab4cc',
           fontFamily: "'Rajdhani', sans-serif", letterSpacing: '0.04em',
           textTransform: 'uppercase', cursor: 'pointer', flex: 1 }}>
           {group ?? '—'}
         </span>
-        <span style={{ fontSize: 11, color: '#3a5a6a', fontFamily: 'Share Tech Mono' }}>
+        <span style={{ fontSize: 16, color: '#3a5a6a', fontFamily: 'Share Tech Mono' }}>
           {screens.length}
         </span>
       </div>
@@ -91,7 +91,7 @@ function TreeGroup({ group, screens, selected, onToggleGroup, onToggleScreen }) 
           onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,229,255,0.04)'}
           onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
           <Checkbox checked={selected.has(screen)} onChange={() => {}} />
-          <span style={{ fontSize: 12.5, color: '#7a9ab8',
+          <span style={{ fontSize: 17, color: '#7a9ab8',
             fontFamily: "'Exo 2', sans-serif", pointerEvents: 'none' }}>{screen}</span>
         </div>
       ))}
@@ -103,25 +103,25 @@ function TreeGroup({ group, screens, selected, onToggleGroup, onToggleScreen }) 
 function FileButton({ label, accept, onSelect, status }) {
   const ref = useRef()
   // status: null | 'uploading' | 'ok' | 'error'
-  const borderColor = status === 'ok' ? '#1a6030' : status === 'error' ? '#602020' : '#1e4060'
+  const borderColor = status === 'ok' ? '#1a6030' : status === 'error' ? '#602020' : '#2a5575'
   const textColor   = status === 'ok' ? '#40c870' : status === 'error' ? '#f04040' : '#5ab4d8'
   return (
     <div style={{ marginBottom: 8 }}>
       <button onClick={() => ref.current.click()} style={{
         width: '100%', padding: '9px 16px',
-        background: 'linear-gradient(135deg, #1a3a5c 0%, #0d2238 100%)',
+        background: 'linear-gradient(135deg, #2a5280 0%, #1e3d5c 100%)',
         border: `1px solid ${borderColor}`, borderRadius: 5, color: textColor,
         fontFamily: "'Rajdhani', sans-serif", fontWeight: 600,
-        fontSize: 13.5, letterSpacing: '0.06em', cursor: 'pointer',
+        fontSize: 17, letterSpacing: '0.06em', cursor: 'pointer',
         textAlign: 'left', transition: 'all 0.15s',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}
         onMouseEnter={e => e.currentTarget.style.borderColor = status === 'ok' ? '#40c870' : '#00e5ff'}
         onMouseLeave={e => e.currentTarget.style.borderColor = borderColor}>
         <span>{label}</span>
-        {status === 'ok'        && <span style={{ fontSize: 12 }}>✓</span>}
-        {status === 'uploading' && <span style={{ fontSize: 11, opacity: 0.6 }}>…</span>}
-        {status === 'error'     && <span style={{ fontSize: 12 }}>✗</span>}
+        {status === 'ok'        && <span style={{ fontSize: 16 }}>✓</span>}
+        {status === 'uploading' && <span style={{ fontSize: 17, opacity: 0.6 }}>…</span>}
+        {status === 'error'     && <span style={{ fontSize: 16 }}>✗</span>}
       </button>
       <input ref={ref} type="file" accept={accept}
         style={{ display: 'none' }}
@@ -133,18 +133,18 @@ function FileButton({ label, accept, onSelect, status }) {
 // ── ActionButton ──────────────────────────────────────────────────────────────
 function ActionButton({ label, onClick, variant = 'primary', disabled }) {
   const colors = {
-    primary:  { bg: 'linear-gradient(135deg, #1a3a5c 0%, #0d2238 100%)', border: '#1e4060', color: '#5ab4d8' },
+    primary:  { bg: 'linear-gradient(135deg, #1a3a5c 0%, #1a3a58 100%)', border: '#2a5575', color: '#5ab4d8' },
     success:  { bg: 'linear-gradient(135deg, #0d4020 0%, #072810 100%)', border: '#1a6030', color: '#40c870' },
   }
   const c = colors[variant] || colors.primary
   return (
     <button onClick={disabled ? undefined : onClick} style={{
       width: '100%', padding: '10px 16px',
-      background: disabled ? '#0d1520' : c.bg,
+      background: disabled ? '#1e3550' : c.bg,
       border: `1px solid ${disabled ? '#1a2530' : c.border}`,
       borderRadius: 5, color: disabled ? '#2a4050' : c.color,
       fontFamily: "'Rajdhani', sans-serif", fontWeight: 700,
-      fontSize: 14, letterSpacing: '0.08em',
+      fontSize: 17, letterSpacing: '0.08em',
       cursor: disabled ? 'not-allowed' : 'pointer',
       marginBottom: 8, transition: 'all 0.15s', opacity: disabled ? 0.5 : 1,
     }}
@@ -160,9 +160,9 @@ function StatusLog({ lines }) {
   return (
     <div style={{
       marginTop: 12, padding: '10px 12px', minHeight: 100,
-      background: '#050e18', border: '1px solid #0d2030',
+      background: '#1e3550', border: '1px solid #1e3a50',
       borderRadius: 5, fontFamily: 'Share Tech Mono',
-      fontSize: 11.5, lineHeight: 1.7, overflowY: 'auto', maxHeight: 280,
+      fontSize: 17, lineHeight: 1.7, overflowY: 'auto', maxHeight: 280,
     }}>
       {lines.length === 0
         ? <span style={{ color: '#3a6a8a' }}>— awaiting input —</span>
@@ -202,10 +202,10 @@ function OvivoLogo() {
 function Divider({ label }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '10px 0 6px' }}>
-      <div style={{ flex: 1, height: 1, background: '#0d2030' }} />
-      <span style={{ fontSize: 10, color: '#6aaccc', fontFamily: 'Share Tech Mono',
+      <div style={{ flex: 1, height: 1, background: '#1a3a55' }} />
+      <span style={{ fontSize: 15, color: '#6aaccc', fontFamily: 'Share Tech Mono',
         letterSpacing: '0.12em', whiteSpace: 'nowrap' }}>{label}</span>
-      <div style={{ flex: 1, height: 1, background: '#0d2030' }} />
+      <div style={{ flex: 1, height: 1, background: '#1a3a55' }} />
     </div>
   )
 }
@@ -366,29 +366,29 @@ export default function App() {
 
   // ── Render ───────────────────────────────────────────────────────────────────
   return (
-    <div style={{ minHeight: '100vh', background: '#0a1520',
+    <div style={{ minHeight: '100vh', background: '#2a4a6a',
       display: 'flex', flexDirection: 'column', fontFamily: "'Exo 2', sans-serif" }}>
 
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 20, padding: '12px 24px',
-        background: 'linear-gradient(180deg, #0d1f35 0%, #081525 100%)',
+        background: 'linear-gradient(180deg, #2a4f75 0%, #1e3d5c 100%)',
         borderBottom: '1px solid #0d2540', boxShadow: '0 2px 16px rgba(0,0,0,0.5)' }}>
         <OvivoLogo />
         <div>
-          <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700, lineHeight: 1.1,
+          <h1 style={{ margin: 0, fontSize: 28, fontWeight: 700, lineHeight: 1.1,
             fontFamily: "'Rajdhani', sans-serif", letterSpacing: '0.05em', color: '#c8dff0' }}>
             Ignition Perspective Screen Compiler Tool
           </h1>
-          <div style={{ fontSize: 11, color: '#5a8aaa', marginTop: 2,
+          <div style={{ fontSize: 16, color: '#5a8aaa', marginTop: 2,
             fontFamily: 'Share Tech Mono', letterSpacing: '0.08em' }}>
-            OVIVO UPW SYSTEM · SCREEN GENERATOR v1.0
+            OVIVO SYSTEM · SCREEN GENERATOR v1.0
           </div>
         </div>
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
           <span style={{ width: 8, height: 8, borderRadius: '50%',
             background: sessionId ? '#40c870' : '#1e3a50',
             boxShadow: sessionId ? '0 0 6px #40c870' : 'none', display: 'inline-block' }} />
-          <span style={{ fontSize: 11, color: '#5a8aaa', fontFamily: 'Share Tech Mono' }}>
+          <span style={{ fontSize: 16, color: '#5a8aaa', fontFamily: 'Share Tech Mono' }}>
             {sessionId ? 'SESSION ACTIVE' : 'NO SESSION'}
           </span>
         </div>
@@ -398,11 +398,11 @@ export default function App() {
       <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
 
         {/* Left panel — tree */}
-        <div style={{ width: 320, flexShrink: 0, borderRight: '1px solid #0d2030',
-          display: 'flex', flexDirection: 'column', background: '#080f1a' }}>
+        <div style={{ width: 320, flexShrink: 0, borderRight: '1px solid #1a3a55',
+          display: 'flex', flexDirection: 'column', background: '#1e3550' }}>
 
           {/* Output type toggles */}
-          <div style={{ padding: '10px 16px', borderBottom: '1px solid #0d2030',
+          <div style={{ padding: '10px 16px', borderBottom: '1px solid #1a3a55',
             display: 'flex', gap: 20 }}>
             <Checkbox checked={genPageConfig} onChange={() => setGenPageConfig(v => !v)}
               label="Page Configuration" />
@@ -412,11 +412,11 @@ export default function App() {
 
           {/* Select all */}
           {tree.length > 0 && (
-            <div style={{ padding: '7px 16px', borderBottom: '1px solid #0d2030',
+            <div style={{ padding: '7px 16px', borderBottom: '1px solid #1a3a55',
               display: 'flex', alignItems: 'center', gap: 8 }}>
               <Checkbox checked={allChecked} indeterminate={someChecked && !allChecked}
                 onChange={toggleAll} label="Select All" />
-              <span style={{ marginLeft: 'auto', fontSize: 11,
+              <span style={{ marginLeft: 'auto', fontSize: 16,
                 color: '#5a8aaa', fontFamily: 'Share Tech Mono' }}>
                 {selected.size}/{allScreens.length}
               </span>
@@ -426,7 +426,7 @@ export default function App() {
           {/* Tree */}
           <div style={{ flex: 1, overflowY: 'auto', padding: '8px 8px' }}>
             {tree.length === 0
-              ? <div style={{ padding: '24px 16px', color: '#5a90b0', fontSize: 12,
+              ? <div style={{ padding: '24px 16px', color: '#5a90b0', fontSize: 17,
                   fontFamily: 'Share Tech Mono', textAlign: 'center' }}>
                   Load screens to populate tree
                 </div>
@@ -457,7 +457,7 @@ export default function App() {
               onSelect={handleSVGsSelect} status={statusSVGs} />
 
             <Divider label="ACTIONS" />
-            <ActionButton label="LOAD Screens" onClick={handleLoad}
+            <ActionButton label="LOAD SCREENS" onClick={handleLoad}
               disabled={loading || statusStructure !== 'ok'} />
             <ActionButton
               label={loading ? 'Working…' : 'Generate Selected Screens'}
@@ -467,16 +467,16 @@ export default function App() {
 
           {/* Log */}
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 11, color: '#6aaccc', fontFamily: 'Share Tech Mono',
+            <div style={{ fontSize: 16, color: '#6aaccc', fontFamily: 'Share Tech Mono',
               marginBottom: 4, letterSpacing: '0.1em' }}>COMPILER OUTPUT</div>
             <StatusLog lines={log} />
             {selected.size > 0 && (
               <div style={{ marginTop: 12, padding: '8px 12px',
-                background: '#05100a', border: '1px solid #0d2018',
-                borderRadius: 5, fontSize: 12, color: '#2a8050', fontFamily: 'Share Tech Mono' }}>
+                background: '#122a1a', border: '1px solid #1e5535',
+                borderRadius: 5, fontSize: 17, color: '#2a8050', fontFamily: 'Share Tech Mono' }}>
                 {selected.size} screen{selected.size > 1 ? 's' : ''} selected
                 {genPageConfig && ' · page-config'}
-                {genNavScreen  && ' · nav-screen'}
+                {genNavScreen  && ' · views'}
               </div>
             )}
           </div>
@@ -488,7 +488,7 @@ export default function App() {
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(5,10,20,0.7)',
           display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 999 }}>
           <div style={{ fontFamily: 'Share Tech Mono', color: '#00e5ff',
-            fontSize: 14, letterSpacing: '0.15em', animation: 'pulse 1s infinite' }}>
+            fontSize: 17, letterSpacing: '0.15em', animation: 'pulse 1s infinite' }}>
             PROCESSING…
           </div>
         </div>
