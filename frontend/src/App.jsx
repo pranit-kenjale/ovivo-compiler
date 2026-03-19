@@ -351,11 +351,19 @@ export default function App() {
         }),
       })
       addLog('Generation complete!', 'success')
+      // Sequential downloads with a delay - browsers block simultaneous programmatic clicks
+      const triggerDownload = (url, name) => new Promise(resolve => {
+        const a = document.createElement('a')
+        a.href = url; a.download = name
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        setTimeout(resolve, 800)   // wait 800ms before next download
+      })
       for (const [key, path] of Object.entries(res.downloads || {})) {
         const name = key === 'page_config' ? 'generated_page_config.zip' : 'generated_views.zip'
         addLog(`Downloading ${name}…`, 'info')
-        const a = document.createElement('a')
-        a.href = `${API}${path}`; a.download = name; a.click()
+        await triggerDownload(`${API}${path}`, name)
       }
     } catch (e) {
       addLog(`Generation failed: ${errMsg(e)}`, 'error')
