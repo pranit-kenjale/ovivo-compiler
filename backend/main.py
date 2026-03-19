@@ -4,23 +4,33 @@ Ovivo Ignition Perspective Screen Compiler — FastAPI Backend
 
 import copy
 import json
+import os
+import shutil
+import tempfile
+import time
 import uuid
 import zipfile
-import tempfile
 from collections import defaultdict
 from pathlib import Path
 from typing import Dict, List, Optional
 
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 app = FastAPI(title="Ovivo Ignition Screen Compiler", version="1.0.0")
 
+# Read allowed origins from ALLOWED_ORIGINS env var (comma-separated).
+# Default permits localhost dev on common ports.
+# On Render set ALLOWED_ORIGINS=https://your-frontend.onrender.com
+_raw_origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:5173,http://localhost:3000,http://127.0.0.1:5173,http://127.0.0.1:8000")
+ALLOWED_ORIGINS = [o.strip() for o in _raw_origins.split(",") if o.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -29,7 +39,42 @@ app.add_middleware(
 SESSIONS: Dict[str, dict] = {}
 TEMP_ROOT = Path(tempfile.gettempdir()) / "ovivo_compiler"
 TEMP_ROOT.mkdir(parents=True, exist_ok=True)
-PERSPECTIVE_NS = "com.inductiveautomation.perspective"
+
+# Sessions expire after this many seconds of inactivity (default 2 hours)
+SESSION_TTL = int(os.getenv("SESSION_TTL_SECONDS", "7200"))
+
+
+def _touch(session_id: str) -> None:
+    """Update the last-accessed timestamp for a session."""
+    if session_id in SESSIONS:
+        SESSIONS[session_id]["_last_accessed"] = time.time()
+
+
+def _purge_expired() -> None:
+    """Remove sessions that have been inactive beyond SESSION_TTL."""
+    cutoff = time.time() - SESSION_TTL
+    expired = [
+        sid for sid, data in SESSIONS.items()
+        if data.get("_last_accessed", 0) < cutoff
+    ]
+    for sid in expired:
+        SESSIONS.pop(sid, None)
+        sid_dir = TEMP_ROOT / sid
+        if sid_dir.exists():
+            shutil.rmtree(sid_dir, ignore_errors=True)
+
+
+def get_session(session_id: str) -> dict:
+    """
+    Return the session dict, raising 404 if missing or expired.
+    Purges stale sessions as a side-effect (lazy GC).
+    """
+    _purge_expired()
+    sess = SESSIONS.get(session_id)
+    if sess is None:
+        raise HTTPException(404, "Session not found or expired. Please refresh and start again.")
+    _touch(session_id)
+    return sess
 
 
 def session_dir(session_id: str) -> Path:
@@ -52,6 +97,8 @@ def view_path_str(level1: str, level2: Optional[str], screen_name: str) -> str:
         return f"{level1}/{level2}/{screen_name}"
     return f"{level1}/{screen_name}"
 
+
+PERSPECTIVE_NS = "com.inductiveautomation.perspective"
 
 def views_zip_folder(level1: str, level2: Optional[str], screen_name: str) -> str:
     if level2:
@@ -301,19 +348,21 @@ class GenerateRequest(BaseModel):
 
 @app.post("/api/session")
 def create_session():
+    _purge_expired()          # clean up on each new session creation
     sid = str(uuid.uuid4())
-    SESSIONS[sid] = {}
+    SESSIONS[sid] = {"_last_accessed": time.time()}
     session_dir(sid)
-    return {"session_id": sid}
+    return {"session_id": sid, "ttl_seconds": SESSION_TTL}
 
 
 @app.post("/api/upload/structure")
 async def upload_structure(session_id: str, file: UploadFile = File(...)):
+    sess = get_session(session_id)
     if not file.filename.endswith(".xlsx"):
         raise HTTPException(400, "Structure file must be .xlsx")
     dest = session_dir(session_id) / "structure.xlsx"
     dest.write_bytes(await file.read())
-    SESSIONS.setdefault(session_id, {})["structure"] = str(dest)
+    sess["structure"] = str(dest)
     return {"status": "ok", "filename": file.filename}
 
 
@@ -335,8 +384,8 @@ def _detect_ref_type(zip_path: str) -> Optional[str]:
 
 @app.post("/api/upload/refs")
 async def upload_refs(session_id: str, files: List[UploadFile] = File(...)):
+    sess = get_session(session_id)
     sid_dir = session_dir(session_id)
-    SESSIONS.setdefault(session_id, {})
     saved = []
     for upload in files:
         raw   = await upload.read()
@@ -344,15 +393,15 @@ async def upload_refs(session_id: str, files: List[UploadFile] = File(...)):
         fpath.write_bytes(raw)
         detected = _detect_ref_type(str(fpath))
         if detected:
-            SESSIONS[session_id][detected] = str(fpath)
+            sess[detected] = str(fpath)
         saved.append({"filename": upload.filename, "detected_as": detected or "unknown"})
     return {"status": "ok", "files": saved}
 
 
 @app.post("/api/load-screens")
 def load_screens(session_id: str):
-    sess = SESSIONS.get(session_id)
-    if not sess or "structure" not in sess:
+    sess = get_session(session_id)
+    if "structure" not in sess:
         raise HTTPException(400, "No structure file uploaded for this session")
     try:
         screen_rows          = read_excel_screens(sess["structure"])
@@ -385,9 +434,7 @@ def load_screens(session_id: str):
 
 @app.post("/api/generate")
 def generate(req: GenerateRequest):
-    sess = SESSIONS.get(req.session_id)
-    if not sess:
-        raise HTTPException(400, "Invalid or expired session")
+    sess = get_session(req.session_id)
     if "screen_rows" not in sess:
         raise HTTPException(400, "Load screens first")
 
@@ -429,4 +476,45 @@ def download_file(session_id: str, filename: str):
 
 @app.get("/api/health")
 def health():
-    return {"status": "ok"}
+    _purge_expired()
+    return {
+        "status": "ok",
+        "active_sessions": len(SESSIONS),
+        "session_ttl_seconds": SESSION_TTL,
+        "allowed_origins": ALLOWED_ORIGINS,
+    }
+
+
+# ── Serve frontend build (production / single-server mode) ───────────────────
+# The frontend is built with `npm run build` inside /frontend.
+# FastAPI serves the resulting /frontend/dist as static files.
+# This means visiting http://localhost:8000 opens the React app directly.
+
+FRONTEND_DIST = Path(__file__).parent.parent / "frontend" / "dist"
+
+if FRONTEND_DIST.exists():
+    # Mount static assets (JS, CSS, images)
+    app.mount("/assets", StaticFiles(directory=str(FRONTEND_DIST / "assets")), name="assets")
+
+    @app.get("/", response_class=HTMLResponse)
+    def serve_root():
+        return (FRONTEND_DIST / "index.html").read_text()
+
+    # Catch-all: any non-API path returns index.html (supports React Router).
+    # Excludes API routes and built-in FastAPI doc paths so they keep working.
+    RESERVED = {"docs", "redoc", "openapi.json"}
+
+    @app.get("/{full_path:path}", response_class=HTMLResponse)
+    def serve_spa(full_path: str):
+        if full_path.startswith("api/") or full_path in RESERVED:
+            raise HTTPException(404)
+        return (FRONTEND_DIST / "index.html").read_text()
+else:
+    @app.get("/")
+    def serve_root_dev():
+        return {
+            "message": "Ovivo Compiler API is running.",
+            "hint": "Frontend not built yet. Run: cd frontend && npm install && npm run build",
+            "api_docs": "/docs",
+            "health": "/api/health",
+        }
