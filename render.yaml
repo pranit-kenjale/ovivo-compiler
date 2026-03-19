@@ -3,9 +3,27 @@ services:
     name: ovivo-compiler-api
     runtime: python
     rootDir: backend
-    buildCommand: pip install -r requirements.txt
+    buildCommand: pip3 install -r requirements.txt
     startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: ALLOWED_ORIGINS
-        value: https://your-frontend-url.com  # update with actual frontend URL
-    autoDeploy: true
+        value: https://ovivo-compiler-ui.onrender.com
+      - key: SESSION_TTL_SECONDS
+        value: "7200"
+
+  - type: static
+    name: ovivo-compiler-ui
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://ovivo-compiler-api.onrender.com
+
+
+#⚠️ Free Tier Caveat
+#On Render's free tier, the backend spins down after 15 minutes of inactivity. The first request after
+#that takes ~30 seconds to wake up. To avoid this either:
+#
+#Upgrade to a paid instance ($7/month), or
+#Use a free uptime monitor like UptimeRobot to ping /api/health every 10 minutes
