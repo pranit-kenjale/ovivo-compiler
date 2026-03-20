@@ -22,8 +22,8 @@ services:
 
 
 #⚠️ Free Tier Caveat
-#On Render's free tier, the backend spins down after 15 minutes of inactivity. The first request after
-#that takes ~30 seconds to wake up. To avoid this either:
+# On Render's free tier, the backend spins down after 15 minutes of inactivity. The first request after
+# that takes ~30 seconds to wake up. To avoid this either:
 #
-#Upgrade to a paid instance ($7/month), or
-#Use a free uptime monitor like UptimeRobot to ping /api/health every 10 minutes
+# Upgrade to a paid instance ($7/month), or
+# Use a free uptime monitor like UptimeRobot to ping /api/health every 10 minutes
