@@ -22,24 +22,31 @@
 ### Backend
 ```bash
 cd backend
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 uvicorn main:app --reload --port 8000
 ```
 
 ### Frontend
 ```bash
 cd frontend
-npm install
+npm install && npm run build
 npm run dev
 ```
 Frontend runs on http://localhost:5173 and proxies `/api` to backend at port 8000.
+
+### App Hosted On
+```bash
+http://localhost:5173      → reads live from  frontend/src/App.jsx  (always latest)
+http://127.0.0.1:8000      → reads from       frontend/dist/        (snapshot from last `npm run build`)
+```
 
 ## Render Deployment
 
 ### Backend (Web Service)
 - **Root Directory**: `backend`
-- **Build Command**: `pip install -r requirements.txt`
+- **Build Command**: `pip3 install -r requirements.txt`
 - **Start Command**: `uvicorn main:app --host 0.0.0.0 --port $PORT`
+  - `$PORT is an environment variable that Render injects into every web service at runtime`
 - **Environment**: Python 3.11+
 
 ### Frontend (Static Site)
@@ -47,6 +54,15 @@ Frontend runs on http://localhost:5173 and proxies `/api` to backend at port 800
 - **Build Command**: `npm install && npm run build`
 - **Publish Directory**: `dist`
 - **Environment Variable**: `VITE_API_URL=https://your-backend.onrender.com`
+
+### Render URLs
+```bash
+URL                                                   Expected
+---------------------------------------------------------------------------------------------- 
+https://ovivo-compiler-ui.onrender.com                React app loads
+https://ovivo-compiler-api.onrender.com/api/health    {"status":"ok","active_sessions":0,...}
+https://ovivo-compiler-api.onrender.com/docs          Swagger UI
+```
 
 ## Usage
 1. Click **Select Structure File** → upload `Structure_fileRev_Modified.xlsx`
